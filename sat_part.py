@@ -11,7 +11,11 @@ def find_shortest_cycle(G):
     """
     ans = INT_MAX
     q = deque()
+    # Check for cycles with every node as the source
     for i in range(G.number_of_nodes()):
+        cycle_nodes = []
+        visited = [False] * G.number_of_nodes() # Marks current nodes in a path 
+        
         dist = [int(1e9)] *  G.number_of_nodes() # Distances from nodes to source i
         par = [-1] * G.number_of_nodes() # Parents of nodes 
         dist[i] = 0 # Distance of source to source is 0
@@ -25,7 +29,7 @@ def find_shortest_cycle(G):
 
             # Traverse all neighbors
             for child in G.neighbors(x):
-                
+
                 # If it is not visited yet
                 if dist[child] == int(1e9):
  
@@ -37,11 +41,17 @@ def find_shortest_cycle(G):
  
                     # Push into the queue
                     q.append(child)
+
+                    visited[child] = True
  
                 # If it is already visited
                 elif par[x] != child and par[child] != x:
                     ans = min(ans, dist[x] +
                                    dist[child] + 1)
+                    # cycle_nodes = path
+            
+    print(f"ans = {ans}")
+    print(f"{[i for i in cycle_nodes]}")
     # If graph contains no cycle
     if ans == INT_MAX:
         return -1
@@ -93,8 +103,8 @@ def main(input_file_name):
         edge = line.split()
         G.add_edge(int(edge[0]), int(edge[1]))
     print_graph(G)
-    print(f"result = {find_shortest_cycle(G)}")
+    find_shortest_cycle(G)
 
 if __name__ == "__main__":
     # main(sys.argv[1])
-    main("tests/2.txt")
+    main("tests/4.txt")
