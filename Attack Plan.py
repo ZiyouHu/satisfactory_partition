@@ -16,7 +16,7 @@ g3.add_edges_from([('a', 'd'), ('b', 'd'), ('c', 'd')]) # This create a star gra
 
 def is_disconnected(g):
     """
-    If diconnected, return the disconnected set.
+    If disconnected, return the disconnected set.
     If connected, return False.
     """
     return False
