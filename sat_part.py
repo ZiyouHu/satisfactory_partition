@@ -7,39 +7,31 @@ import math
 
 def find_shortest_cycle(G):
     """
-    Return the shortest cycle in a graph. Return None if no cycle is found. 
+    Return the nodes in a graph which create its shortest cycle. Return None if no cycle is found. 
     """
     ans = INT_MAX
     q = deque()
     for i in range(G.number_of_nodes()):
-        # To store length of the shortest cycle
-
-        # Make distance maximum
-        dist = [int(1e9)] *  G.number_of_nodes()
-        par = [-1] * G.number_of_nodes() # Take a imaginary parent
+        dist = [int(1e9)] *  G.number_of_nodes() # Distances from nodes to source i
+        par = [-1] * G.number_of_nodes() # Parents of nodes 
         dist[i] = 0 # Distance of source to source is 0
         q = deque()
         q.append(i) # Push the source element
 
         # Continue until queue is not empty
         while q:
-            
-            # Take the first element
             x = q[0]
             q.popleft()
 
-            print(f"x = {x} with children:")
-            for child in G.neighbors(i):
-                print(child)
-            # Traverse for all it's childs
-            for child in G.neighbors(i):
+            # Traverse all neighbors
+            for child in G.neighbors(x):
                 
                 # If it is not visited yet
                 if dist[child] == int(1e9):
  
                     # Increase distance by 1
                     dist[child] = 1 + dist[x]
- 
+
                     # Change parent
                     par[child] = x
  
@@ -101,8 +93,8 @@ def main(input_file_name):
         edge = line.split()
         G.add_edge(int(edge[0]), int(edge[1]))
     print_graph(G)
-    print(find_shortest_cycle(G))
+    print(f"result = {find_shortest_cycle(G)}")
 
 if __name__ == "__main__":
     # main(sys.argv[1])
-    main("tests/3.txt")
+    main("tests/2.txt")
