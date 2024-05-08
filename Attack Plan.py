@@ -1,4 +1,18 @@
 # Attack Plan
+import networkx as nx
+
+g0 = nx.Graph() # If the input is an empty graph, we should return True, I think.
+
+g1 = nx.Graph()
+g1.add_node('a') # A graph with just 1 node. I think it is a trivial case that we should return 
+
+g2 = nx.Graph()
+g2.add_nodes_from(['a', 'b'])
+g2.add_edge('a', 'b') # A graph with 2 nodes and 1 edge between them. I think this should return False
+
+g3 = nx.Graph()
+g3.add_nodes_from(['a', 'b', 'c', 'd'])
+g3.add_edges_from([('a', 'd'), ('b', 'd'), ('c', 'd')]) # This create a star graph
 
 def is_disconnected(g):
     """
