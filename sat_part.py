@@ -1,20 +1,66 @@
 import networkx as nx
 from networkx import Graph
+from collections import deque
 import sys
-
+from sys import maxsize as INT_MAX
+import math
 
 def find_shortest_cycle(G):
     """
     Return the shortest cycle in a graph. Return None if no cycle is found. 
     """
-    cycles = nx.cycle_basis(G)
-    if len(cycles) == 0:
-        return None
-    shortest = cycles[0]
-    for c in cycles:
-        if len(c) < len(shortest):
-            shortest = c
-    return shortest
+    ans = INT_MAX
+    q = deque()
+    for i in range(G.number_of_nodes()):
+        # To store length of the shortest cycle
+
+        # Make distance maximum
+        dist = [int(1e9)] *  G.number_of_nodes()
+        par = [-1] * G.number_of_nodes() # Take a imaginary parent
+        dist[i] = 0 # Distance of source to source is 0
+        q = deque()
+        q.append(i) # Push the source element
+
+        # Continue until queue is not empty
+        while q:
+            
+            # Take the first element
+            x = q[0]
+            q.popleft()
+
+            print(f"x = {x} with children:")
+            for child in G.neighbors(i):
+                print(child)
+            # Traverse for all it's childs
+            for child in G.neighbors(i):
+                
+                # If it is not visited yet
+                if dist[child] == int(1e9):
+ 
+                    # Increase distance by 1
+                    dist[child] = 1 + dist[x]
+ 
+                    # Change parent
+                    par[child] = x
+ 
+                    # Push into the queue
+                    q.append(child)
+ 
+                # If it is already visited
+                elif par[x] != child and par[child] != x:
+                    ans = min(ans, dist[x] +
+                                   dist[child] + 1)
+    # If graph contains no cycle
+    if ans == INT_MAX:
+        return -1
+    # If graph contains cycle
+    else:
+        return ans
+
+
+#  Approach: For every vertex, we check if it is possible to get the shortest cycle involving this vertex.
+# For every vertex first, push current vertex into the queue and then it’s neighbours and if the vertex which is already visited comes again then the cycle is present. 
+# Apply the above process for every vertex and get the length of the shortest cycle.
 
 def algorithm_1(G):
     """
@@ -22,8 +68,8 @@ def algorithm_1(G):
     """
     n = G.nodes()
     # Find a cycle to use as basis of the vertex set.
-    cyc = find_shortest_cycle(G)
-    if not cyc or len(cyc) >= n/2:
+    A = find_shortest_cycle(G)
+    if not A or len(A) >= n/2:
         return None
     # TODO
     # while there exists a vertex v not in V1 such that it has at least d - 1 neighbors in V1:
@@ -35,7 +81,7 @@ def print_graph(G):
     """
     Utility function which prints number of nodes and edges. 
     """
-    print(f"Graph with {G.number_of_edges()} nodes: ")
+    print(f"Graph with {G.number_of_nodes()} nodes: ")
     for e in G.edges():
         print(e)
 
@@ -50,13 +96,13 @@ def main(input_file_name):
 
     # Populate graph
     G = nx.Graph()
-    G.add_nodes_from([i for i in range(1, n + 1)])
+    G.add_nodes_from([i for i in range(n)])
     for line in data:
         edge = line.split()
-        G.add_edge(edge[0], edge[1])
+        G.add_edge(int(edge[0]), int(edge[1]))
     print_graph(G)
-    algorithm_1(G)
+    print(find_shortest_cycle(G))
 
 if __name__ == "__main__":
     # main(sys.argv[1])
-    main("tests/1.txt")
+    main("tests/3.txt")
