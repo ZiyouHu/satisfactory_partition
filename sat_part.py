@@ -42,22 +42,35 @@ def is_non_star_tree(g: Graph) -> bool:
 
 def cycle_larger_4(g: Graph) -> tuple | None:
     """
-    If the graph is a cycle larger than 4, return the partition pair.
-    Returns None if graph is not cycle larger than 4. 
+    If the graph is a cycle larger than 4, return a partition pair.
+    Arbitrarily, the partition pair consists of two nodes in one half of the 
+    partition and the rest of the nodes in the other half. 
+    Returns None if graph is not a cycle larger than 4. 
     """
-    # TODO
+    if g.number_of_nodes() <= 4:
+        return None
     if g.number_of_edges() != g.number_of_nodes():
         return None 
-    return False
+    # Check if graph is cycle
+    simple_cycles = list(nx.simple_cycles(g))
+    if len(simple_cycles) != 1:
+        return None
+    # Create partition
+    if sorted(simple_cycles[0]) == sorted(list(g.nodes())):
+        return simple_cycles[0][:2], simple_cycles[0][2:] 
+    return None
+
 
 # The functions below are all for "special" cases
-def max_4(g):
+def has_max_degree_4(g: Graph) -> bool:
     """
-    Return whether the maximum degree in the graph is no longer than 4
+    Return whether the maximum degree in the graph is no longer than 4.
+    If there is a vertex with degree larger than 4, the problem is NP hard.
     """
-    # TODO
-    # If there is a vertex with degree larger than 4, the problem is NP hard
-    return False
+    for n in g.nodes():
+        if g.degree[n] > 4:
+            return False
+    return True
 
 
 def regular_3(g):
@@ -202,9 +215,11 @@ def main(input_file_name):
         edge = line.split()
         G.add_edge(int(edge[0]), int(edge[1]))
     print_graph(G)
+    print(has_max_degree_4(G))
     # find_shortest_cycle(G)
-    print(is_disconnected(G))
+    # print(is_disconnected(G))
+    
 
 if __name__ == "__main__":
     # main(sys.argv[1])
-    main("tests/a.txt")
+    main("tests/max_more_than_4.txt")
