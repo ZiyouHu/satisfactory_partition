@@ -25,7 +25,8 @@ def is_complete(g):
     """
     return a boolean
     """
-    return False
+    return nx.complete_graph(g)
+    
 
 def is_non_star_tree(g):
     # if the graph is connected, count the number of edges == n-1.

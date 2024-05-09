@@ -6,6 +6,11 @@ import sys
 from sys import maxsize as INT_MAX
 import math
 
+K4_PATH = "util/K4.txt"
+K33_PATH = "util/K33.txt"
+K4_GRAPH = None
+K33_GRAPH = None
+
 def get_disconnected_sets(g: Graph) -> List[set] | None:
     """
     If disconnected, return the disconnected sets.
@@ -17,14 +22,6 @@ def get_disconnected_sets(g: Graph) -> List[set] | None:
     for s in nx.connected_components(g):
         result.append(s)
     return result
-
-
-def is_complete(g: Graph) -> bool:
-    """
-    return a boolean
-    """
-    # TODO refactor directly into function call
-    return nx.complete_graph(g)
 
 
 def is_non_star_tree(g: Graph) -> bool:
@@ -40,11 +37,12 @@ def is_non_star_tree(g: Graph) -> bool:
             return False
     return True 
 
+
 def cycle_larger_4(g: Graph) -> tuple | None:
     """
     If the graph is a cycle larger than 4, return a partition pair.
-    Arbitrarily, the partition pair consists of two nodes in one half of the 
-    partition and the rest of the nodes in the other half. 
+    Arbitrarily, the partition pair created will consist of two nodes in one 
+    half of the partition and the rest of the nodes in the other half. 
     Returns None if graph is not a cycle larger than 4. 
     """
     if g.number_of_nodes() <= 4:
@@ -64,7 +62,7 @@ def cycle_larger_4(g: Graph) -> tuple | None:
 # The functions below are all for "special" cases
 def has_max_degree_4(g: Graph) -> bool:
     """
-    Return whether the maximum degree in the graph is no longer than 4.
+    Return whether the maximum degree in the graph is no more than 4.
     If there is a vertex with degree larger than 4, the problem is NP hard.
     """
     for n in g.nodes():
@@ -73,9 +71,9 @@ def has_max_degree_4(g: Graph) -> bool:
     return True
 
 
-def regular_3(g):
+def is_valid_3_regular(g: Graph) -> bool:
     """
-    Check if g is a 3-regular graph but not K4 or K3,3
+    Returns whether g is a 3-regular graph and not a K4 or K3,3 graph.
     """
     # TODO
     # K4 and K3,3 have no partition
@@ -113,6 +111,7 @@ def has_2_disjoint_cyc(g):
 def special_req(g):
     # TODO
     return False
+
 
 def find_shortest_cycle(g : Graph) -> List | None:
     """
@@ -198,6 +197,11 @@ def print_graph(G):
     print(f"Graph with {G.number_of_nodes()} nodes: ")
     for e in G.edges():
         print(e)
+
+
+# def init_util_graphs() -> None:
+#     with open(UTIL_PATH)
+
 
 def main(input_file_name):
     """
