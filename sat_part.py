@@ -6,10 +6,9 @@ import sys
 from sys import maxsize as INT_MAX
 import math
 
-K4_PATH = "util/K4.txt"
-K33_PATH = "util/K33.txt"
-K4_GRAPH = None
-K33_GRAPH = None
+K4_PATH = "utils/K4.txt"
+K33_PATH = "utils/K3,3.txt"
+K5_PATH = "utils/K5.txt"
 
 def get_disconnected_sets(g: Graph) -> List[set] | None:
     """
@@ -75,16 +74,29 @@ def is_valid_3_regular(g: Graph) -> bool:
     """
     Returns whether g is a 3-regular graph and not a K4 or K3,3 graph.
     """
-    # TODO
-    # K4 and K3,3 have no partition
+    # Initialize utility graphs
+    K4_graph = parse_graph(K4_PATH)
+    K33_graph = parse_graph(K33_PATH)
+    # Check if graph is K4 or K3,3 graph
+    if nx.is_isomorphic(g, K33_graph) or nx.is_isomorphic(g, K4_graph):
+        return False
+    # Check indegrees of nodes
+    if nx.is_regular(g) and g.number_of_nodes() > 0:
+        return g.degree[0] == 3
     return False
 
-def regular_4(g):
+
+def is_valid_4_regular(g: Graph) -> bool:
     """
-    Check if g is a 4-regular graph but not K5
+    Returns whether g is a 4-regular graph and not a K5 graph.
     """
-    # TODO
-    # K5 has no partition
+    # Check if graph is K5
+    K5_graph = parse_graph(K5_PATH)
+    if nx.is_isomorphic(g, K5_graph):
+        return False
+    # Check indegrees of nodes
+    if nx.is_regular(g) and g.number_of_nodes() > 0:
+        return g.degree[0] == 4
     return False
 
 
@@ -199,31 +211,33 @@ def print_graph(G):
         print(e)
 
 
-# def init_util_graphs() -> None:
-#     with open(UTIL_PATH)
-
-
-def main(input_file_name):
+def parse_graph(input_file_name) -> Graph:
     """
-    Converts input file into graph and finds satisfactory partition. 
+    Converts input text file into graph.
     """
     # Read file
     with open(input_file_name, "r") as file:
         data = file.readlines()
         n = int(data.pop(0))
-
     # Populate graph
     G = nx.Graph()
     G.add_nodes_from([i for i in range(n)])
     for line in data:
         edge = line.split()
         G.add_edge(int(edge[0]), int(edge[1]))
+    return G
+
+
+def main(input_file_name):
+    """
+    Converts input file into graph and finds satisfactory partition. 
+    """
+    # Initalize given graph from text file   
+    G = parse_graph(input_file_name)
     print_graph(G)
-    print(has_max_degree_4(G))
-    # find_shortest_cycle(G)
-    # print(is_disconnected(G))
+    print(is_valid_4_regular(G))
     
 
 if __name__ == "__main__":
     # main(sys.argv[1])
-    main("tests/max_more_than_4.txt")
+    main("utils/K5.txt")
