@@ -108,9 +108,14 @@ def algorithm1(g):
 
 
 # Check if the smallest degree in the path is 3.
-def min_3(g):
-    # TODO
-    return False
+def has_min_degree_3(g):
+    """
+    Return whether the minimum degree in the graph is no less than 3.
+    """
+    for n in g.nodes():
+        if g.degree[n] < 3:
+            return False
+    return True
 
 
 def has_2_disjoint_cyc(g):
