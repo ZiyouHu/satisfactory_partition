@@ -128,7 +128,6 @@ def has_2_disjoint_cyc(g):
         for j in cycles:
             if i.isdisjoint(j):
                 return True
-    print(cycles)
     return False
 
 # Verbatim from the paper: need to adapt
@@ -143,17 +142,6 @@ def special_req(g):
     return False
 
 
-def find_shortest_cycle(g : Graph) -> List | None:
-    """
-    Return the nodes in a graph which create its shortest cycle. Return None if no cycle is found. 
-    If there are multiple valid cycles, returns the first one found.
-    """
-    cycles = list(nx.simple_cycles(g, (g.number_of_nodes() / 2 - 1)))
-    if len(cycles) == 0:
-        return None
-    return cycles[0]
-
-
 def algorithm_1(G):
     """
     Satisfactory partition for 3 and 4-regular graphs, |V| > 10. 
@@ -165,8 +153,8 @@ def algorithm_1(G):
 
     n = G.nodes()
     # Find a cycle to use as basis of the vertex set.
-    A = find_shortest_cycle(G)
-    if not A or len(A) >= n/2:
+    cycles = list(nx.simple_cycles(g, (g.number_of_nodes() / 2 - 1)))
+    if len(cycles) == 0:
         return None
     # while there exists a vertex v not in V1 such that it has at least d - 1 neighbors in V1:
     # include that vertex in V1
