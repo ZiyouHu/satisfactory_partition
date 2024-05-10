@@ -1,16 +1,16 @@
 from typing import List
 import networkx as nx
 from networkx import Graph
-from collections import deque
 import sys
-from sys import maxsize as INT_MAX
-import math
 import matplotlib as plt
 
+# Assume all the graphs are simple, unweighted, and undirected.
+# PATH refers to the path of the file. It does not mean path in graph theory.
 K4_PATH = "utils/K4.txt"
 K33_PATH = "utils/K3,3.txt"
 K5_PATH = "utils/K5.txt"
 
+# Implemented in main
 def get_disconnected_sets(g: Graph) -> List[set] | None:
     """
     If disconnected, return the disconnected sets.
@@ -18,11 +18,9 @@ def get_disconnected_sets(g: Graph) -> List[set] | None:
     """
     if nx.is_connected(g):
         return None
-    result = []
-    for s in nx.connected_components(g):
-        result.append(s)
-    return result
-
+    V1 = nx.connected_components(g)[0]
+    V2 = g.nodes ^ V1
+    return [V1, V2]
 
 def is_non_star_tree(g: Graph) -> bool:
     """
@@ -99,14 +97,6 @@ def is_valid_4_regular(g: Graph) -> bool:
     if nx.is_regular(g) and g.number_of_nodes() > 0:
         return g.degree[0] == 4
     return False
-
-
-# In implementation, we need to check whether there are at least 11 vertices in g or not.
-def algorithm1(g):
-    # Must have at least 11 vertices in g to run this algorithm
-    # TODO
-    return False
-
 
 # Check if the smallest degree in the path is 3.
 def has_min_degree_3(g):
@@ -190,14 +180,38 @@ def visualize_graph(G: Graph) -> None:
 
 def main(input_file_name):
     """
-    Converts input file into graph and finds satisfactory partition. 
+    Converts input file into graph and finds satisfactory partition if there exists one. 
     """
     # Initalize given graph from text file   
-    G = parse_graph(input_file_name)
-    visualize_graph(G)
+    g = parse_graph(input_file_name)
+    visualize_graph(g)
 
+    # Check if the graph is disconnected.
+    if get_disconnected_sets(g):
+        s_p = get_disconnected_sets(g)
+        print(f"The graph is disconnected. A satisfactory partition for the graph is: {s_p}")
+        return s_p
+
+    # Check if the graph is complete
+    complete_g = nx.complete_graph(range(g.number_of_nodes))
+    if (nx.is_isomorphic(g, complete_g)):
+        print("The graph is complete. No satisfactory partition exists.")
+        return
+
+    if is_non_star_tree(g):
+        # Need to output the actual paritition
+        print("blah")
+    else:
+        print("The graph is a star. No satisfactory paritition exists.")
+
+
+
+
+
+    # We need to check whether there are at least 11 vertices in g or not.
+    if len(g.nodes) > 10:
+        algorithm_1(g)
     
 
 if __name__ == "__main__":
-    # main(sys.argv[1])
-    main("tests/triangle_on_rectangle.txt")
+    main(sys.argv[1])
