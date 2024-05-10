@@ -146,29 +146,18 @@ def algorithm_1(G):
     """
     Satisfactory partition for 3 and 4-regular graphs, |V| > 10. 
     """
-    # TODO
-    #  Approach: For every vertex, we check if it is possible to get the shortest cycle involving this vertex.
-    # For every vertex first, push current vertex into the queue and then it’s neighbours and if the vertex which is already visited comes again then the cycle is present. 
-    # Apply the above process for every vertex and get the length of the shortest cycle.
-
-    n = G.nodes()
-    # Find a cycle to use as basis of the vertex set.
-    cycles = list(nx.simple_cycles(g, (g.number_of_nodes() / 2 - 1)))
-    if len(cycles) == 0:
+    cycles = list(nx.simple_cycles(G, (G.number_of_nodes() / 2 - 1)))
+    if not cycles:
+        print('No satisfactory partition found.')
         return None
-    # while there exists a vertex v not in V1 such that it has at least d - 1 neighbors in V1:
-    # include that vertex in V1
-    # return the partition set (V1, V2)
-    
-
-def print_graph(G):
-    """
-    Utility function which prints number of nodes and edges. 
-    """
-    print(f"Graph with {G.number_of_nodes()} nodes: ")
-    for e in G.edges():
-        print(e)
-
+    d = len(G.neighbors(0)) # The degree of every vertex
+    v1 = cycles[0]
+    not_v1 = v1 ^ G.nodes
+    for n in not_v1:
+        if len(G.neighbors(n) & v1) >= d-1:
+            v1.append(n)
+    v2 = v1 ^ G.nodes
+    return (v1, v2)
 
 def parse_graph(input_file_name) -> Graph:
     """
@@ -205,8 +194,8 @@ def main(input_file_name):
     """
     # Initalize given graph from text file   
     G = parse_graph(input_file_name)
-    print_graph(G)
-    print(find_shortest_cycle(G))
+    visualize_graph(G)
+
     
 
 if __name__ == "__main__":
