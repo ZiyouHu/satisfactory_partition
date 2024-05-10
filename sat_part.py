@@ -5,6 +5,7 @@ from collections import deque
 import sys
 from sys import maxsize as INT_MAX
 import math
+import matplotlib as plt
 
 K4_PATH = "utils/K4.txt"
 K33_PATH = "utils/K3,3.txt"
@@ -130,70 +131,27 @@ def has_2_disjoint_cyc(g):
     print(cycles)
     return False
 
-# Verbatim from the paper: need to adpat
+# Verbatim from the paper: need to adapt
 # Does there exist no more than 2 disjoint edges that can be inserted between vertices of degrees 1 or 2 such
 # that the resulting multigraph contains 2 vertex disjoint cycles
 def special_req(g):
-    # TODO
+    # Locate nodes of degrees 1 or 2 (candidate nodes we can add disjoint edges to) 
+    candidate_nodes = [] # List of nodes we can add disjoint edges to 
+    for n in g.nodes():
+        if g.degree[n] < 3:
+            candidate_nodes.append(n)
     return False
 
 
 def find_shortest_cycle(g : Graph) -> List | None:
     """
     Return the nodes in a graph which create its shortest cycle. Return None if no cycle is found. 
+    If there are multiple valid cycles, returns the first one found.
     """
-    # TODO
-    ans = INT_MAX
-    q = deque()
-    # Check for cycles with every node as the source
-    for i in range(g.number_of_nodes()):
-        cycle_nodes = []
-        visited = [False] * g.number_of_nodes() # Marks current nodes in a path 
-        
-        dist = [int(1e9)] *  g.number_of_nodes() # Distances from nodes to source i
-        par = [-1] * g.number_of_nodes() # Parents of nodes 
-        dist[i] = 0 # Distance of source to source is 0
-        q = deque()
-        q.append(i) # Push the source element
-
-        # Continue until queue is not empty
-        while q:
-            x = q[0]
-            q.popleft()
-
-            # Traverse all neighbors
-            for child in g.neighbors(x):
-
-                # If it is not visited yet
-                if dist[child] == int(1e9):
- 
-                    # Increase distance by 1
-                    dist[child] = 1 + dist[x]
-
-                    # Change parent
-                    par[child] = x
- 
-                    # Push into the queue
-                    q.append(child)
-
-                    visited[child] = True
- 
-                # If it is already visited
-                elif par[x] != child and par[child] != x:
-                    ans = min(ans, dist[x] +
-                                   dist[child] + 1)
-                    print(f"Node visited\nx = {x}, i = {i}")
-                    print(f"visited = {visited}, ans = {ans}")
-                    # cycle_nodes = path
-            
-    print(f"ans = {ans}")
-    print(f"{[i for i in cycle_nodes]}")
-    # If graph contains no cycle
-    if ans == INT_MAX:
-        return -1
-    # If graph contains cycle
-    else:
-        return ans
+    cycles = list(nx.simple_cycles(g, (g.number_of_nodes() / 2 - 1)))
+    if len(cycles) == 0:
+        return None
+    return cycles[0]
 
 
 def algorithm_1(G):
@@ -241,6 +199,18 @@ def parse_graph(input_file_name) -> Graph:
     return G
 
 
+def visualize_graph(G: Graph) -> None:
+    """
+    Draws display of graph.
+    """
+    plt.figure(1)
+    #nx.draw_networkx(G)
+    nx.draw_networkx(G,
+                    pos=nx.spring_layout(G, iterations=1000),
+                    arrows=False, with_labels=True)
+    plt.show()
+
+
 def main(input_file_name):
     """
     Converts input file into graph and finds satisfactory partition. 
@@ -248,10 +218,9 @@ def main(input_file_name):
     # Initalize given graph from text file   
     G = parse_graph(input_file_name)
     print_graph(G)
-    print(has_2_disjoint_cyc(G))
+    print(find_shortest_cycle(G))
     
 
 if __name__ == "__main__":
     # main(sys.argv[1])
-    main("tests/linked_triangles.txt")
-    main("tests/no_disjoint_cycles.txt")
+    main("tests/triangle_on_rectangle.txt")
