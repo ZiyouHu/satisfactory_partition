@@ -10,7 +10,6 @@ K4_PATH = "utils/K4.txt"
 K33_PATH = "utils/K3,3.txt"
 K5_PATH = "utils/K5.txt"
 
-# Implemented in main
 def get_disconnected_sets(g: Graph) -> List[set] | None:
     """
     If disconnected, return the disconnected sets.
@@ -35,8 +34,6 @@ def is_non_star_tree(g: Graph) -> int:
             return 1 # a tree but a star
     return 2
 
-
-
 def cycle_larger_4(g: Graph) -> list | None:
     """
     If the graph is a cycle larger than 4, return a partition pair.
@@ -57,7 +54,6 @@ def cycle_larger_4(g: Graph) -> list | None:
         return [simple_cycles[0][:2], simple_cycles[0][2:] ]
     return None
 
-
 # The functions below are all for "special" cases
 def has_max_degree_4(g: Graph) -> bool:
     """
@@ -68,7 +64,6 @@ def has_max_degree_4(g: Graph) -> bool:
         if g.degree[n] > 4:
             return False
     return True
-
 
 def is_valid_3_regular(g: Graph) -> bool:
     """
@@ -84,7 +79,6 @@ def is_valid_3_regular(g: Graph) -> bool:
     if nx.is_regular(g) and g.number_of_nodes() > 0:
         return g.degree[0] == 3
     return False
-
 
 def is_valid_4_regular(g: Graph) -> bool:
     """
@@ -108,7 +102,6 @@ def has_min_degree_3(g):
         if g.degree[n] < 3:
             return False
     return True
-
 
 def has_2_disjoint_cyc(g):
     """
@@ -226,15 +219,39 @@ def main(input_file_name):
         return
     
     # Implement the page on the second page
-
-
-
-
-
+    if is_valid_3_regular(g) or is_valid_4_regular(g):
+        if g.number_of_nodes > 10:
+            algorithm_1(g)
+        else:
+            # TODO: we need to implement the special_req function.
+            if special_req(g):
+                print("The graph has a satisfactory partition.")
+            else:
+                print("No satisfactory partition exists")
+            return
+    else:
+        print("The graph is K4, K3,3, or K5. No satisfacroty paritition exists.")
+        return
+    
     # We need to check whether there are at least 11 vertices in g or not.
     if len(g.nodes) > 10:
-        algorithm_1(g)
+        s_p = algorithm_1(g)
+        print("The graph fits the criterion for algorithm1. A satisfactory partition for the graph is {s_p}.")
+        return s_p
     
+    # The graph is not a 3 or 4 regular graph.
+    if has_min_degree_3(g):
+        if has_2_disjoint_cyc(g):
+            print("The graph has a satisfactory partition.")
+            return    
+        else:
+            print("The graph has min degree 3 but does not have 2 vertex disjoint cycles.")
+            if special_req(g):
+                print("The graph has a satisfactory partition.")
+            else:
+                print("No satisfactory partition exists")
+            return
+        
 
 if __name__ == "__main__":
     main(sys.argv[1])
