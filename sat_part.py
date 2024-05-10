@@ -22,21 +22,22 @@ def get_disconnected_sets(g: Graph) -> List[set] | None:
     V2 = g.nodes ^ V1
     return [V1, V2]
 
-def is_non_star_tree(g: Graph) -> bool:
+def is_non_star_tree(g: Graph) -> int:
     """
     Returns True if the graph is a non-star tree. 
     """
     if not nx.is_tree(g):
-        return False
+        return 0 # Not a tree
     # Check if tree is star
     num_nodes = g.number_of_nodes() - 1
     for n in g.nodes:
         if len(g.neighbors(n)) == num_nodes:
-            return False
-    return True 
+            return 1 # a tree but a star
+    return 2
 
 
-def cycle_larger_4(g: Graph) -> tuple | None:
+
+def cycle_larger_4(g: Graph) -> list | None:
     """
     If the graph is a cycle larger than 4, return a partition pair.
     Arbitrarily, the partition pair created will consist of two nodes in one 
@@ -53,7 +54,7 @@ def cycle_larger_4(g: Graph) -> tuple | None:
         return None
     # Create partition
     if sorted(simple_cycles[0]) == sorted(list(g.nodes())):
-        return simple_cycles[0][:2], simple_cycles[0][2:] 
+        return [simple_cycles[0][:2], simple_cycles[0][2:] ]
     return None
 
 
@@ -189,7 +190,7 @@ def main(input_file_name):
     # Check if the graph is disconnected.
     if get_disconnected_sets(g):
         s_p = get_disconnected_sets(g)
-        print(f"The graph is disconnected. A satisfactory partition for the graph is: {s_p}")
+        print(f"The graph is disconnected. A satisfactory partition for the graph is {s_p}")
         return s_p
 
     # Check if the graph is complete
@@ -199,10 +200,32 @@ def main(input_file_name):
         return
 
     if is_non_star_tree(g):
+        if is_non_star_tree == 1:
+            print("The graph is a star. No satisfactory partition exists.")
+            return
         # Need to output the actual paritition
-        print("blah")
-    else:
-        print("The graph is a star. No satisfactory paritition exists.")
+        leaf = 0
+        for n in g.nodes:
+            if len(g.neighbors(n)) == 1:
+                leaf = n
+        parent = g.neighbors(n)[0]
+        v1 = g.neighbors(n)
+        v1.append(parent)
+        v2 = g.nodes ^ v1
+        s_p = [v1, v2] 
+        s_p = is_non_star_tree(g)
+        print(f"The graph is a tree (and not a star). A satisfactory partition for the graph is: {s_p}.")
+        return s_p
+    
+    if cycle_larger_4(g):
+        s_p = cycle_larger_4(g)
+        print(f"The graph is a cycle with length larger than 4. A satisfactory partition for the graph is {s_p}.")
+    
+    if not has_max_degree_4(g):
+        print("Because there are nodes with degree larger than 4, the problem is NP hard.")
+        return
+    
+    # Implement the page on the second page
 
 
 
