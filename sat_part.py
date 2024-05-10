@@ -119,7 +119,15 @@ def has_min_degree_3(g):
 
 
 def has_2_disjoint_cyc(g):
-    # TODO
+    """
+    Return whether the graph has 2 disjoint cycles.
+    """
+    cycles = [set(c) for c in nx.simple_cycles(g)]
+    for i in cycles:
+        for j in cycles:
+            if i.isdisjoint(j):
+                return True
+    print(cycles)
     return False
 
 # Verbatim from the paper: need to adpat
@@ -240,9 +248,10 @@ def main(input_file_name):
     # Initalize given graph from text file   
     G = parse_graph(input_file_name)
     print_graph(G)
-    print(is_valid_4_regular(G))
+    print(has_2_disjoint_cyc(G))
     
 
 if __name__ == "__main__":
     # main(sys.argv[1])
-    main("utils/K5.txt")
+    main("tests/linked_triangles.txt")
+    main("tests/no_disjoint_cycles.txt")
