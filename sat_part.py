@@ -176,7 +176,7 @@ def disjoint_edges(g: MultiGraph, candidates: List, u: int, v: int) -> List:
             result.append((i, j))
     return result
 
-def algorithm_1(G):
+def bazgan_partition(G):
     """
     Satisfactory partition for 3 and 4-regular graphs, |V| > 10. 
     """
@@ -184,14 +184,15 @@ def algorithm_1(G):
     if not cycles:
         print('No satisfactory partition found.')
         return None
-    d = len(G.neighbors(0)) # The degree of every vertex
+    d = G.degree(0) # The degree of every vertex
     v1 = cycles[0]
     not_v1 = v1 ^ G.nodes
     for n in not_v1:
-        if len(G.neighbors(n) & v1) >= d-1:
+        if len(set(G.neighbors(n)) & set(v1)) >= d-1:
             v1.append(n)
-    v2 = v1 ^ G.nodes
+    v2 = list(v1 ^ G.nodes)
     return (v1, v2)
+
 
 def parse_graph(input_file_name) -> Graph:
     """
@@ -229,7 +230,11 @@ def main(input_file_name):
     # TODO
     # visualize_graph(g) 
     is_potential_disjoint(g)
-
+    # Empty graph
+    if g.number_of_nodes() == 0:
+        print("Graph is empty. No partition exists.")
+        return 
+    
     # Check if the graph is disconnected.
     if get_disconnected_sets(g):
         s_p = get_disconnected_sets(g)
@@ -270,8 +275,8 @@ def main(input_file_name):
     
     # Implement the page on the second page
     if is_valid_3_regular(g) or is_valid_4_regular(g):
-        if g.number_of_nodes > 10:
-            algorithm_1(g)
+        if g.number_of_nodes() > 10:
+            bazgan_partition(g)
         else:
             if is_potential_disjoint(g):
                 print("The graph has a satisfactory partition.")
@@ -284,8 +289,8 @@ def main(input_file_name):
     
     # We need to check whether there are at least 11 vertices in g or not.
     if len(g.nodes) > 10:
-        s_p = algorithm_1(g)
-        print("The graph fits the criterion for algorithm1. A satisfactory partition for the graph is {s_p}.")
+        s_p = bazgan_partition(g)
+        print(f"The graph fits the criterion for algorithm1. A satisfactory partition for the graph is {s_p}.")
         return s_p
     
     # The graph is not a 3 or 4 regular graph.

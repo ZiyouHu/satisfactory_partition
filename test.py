@@ -55,6 +55,9 @@ class SatPartTest(unittest.TestCase):
         with self.subTest():
             g = parse_graph("tests/valid_3_regular.txt")
             self.assertEqual(is_valid_3_regular(g), True)
+        with self.subTest():
+            g = parse_graph("tests/valid_bazgan_partition.txt")
+            self.assertEqual(is_valid_3_regular(g), True)
     
     def test_is_valid_4_regular(self):
         with self.subTest():
@@ -86,6 +89,29 @@ class SatPartTest(unittest.TestCase):
             g = parse_graph("tests/valid_is_potential_disjoint_2.txt")
             self.assertEqual(is_potential_disjoint(g), True)
     
+    def test_has_2_discjoint_cyc(self):
+        with self.subTest():
+            g = parse_graph("tests/linked_triangles.txt")
+            self.assertEqual(has_2_disjoint_cyc(g), True)
+        with self.subTest():
+            g = parse_graph("tests/cycle_size_5.txt")
+            self.assertEqual(has_2_disjoint_cyc(g), False)
+        
+    def test_bazgan_partition(self):
+        with self.subTest():
+            g = parse_graph("tests/bisected_square.txt")
+            self.assertEqual(bazgan_partition(g), None)
+        with self.subTest():
+            g = parse_graph("tests/valid_bazgan_partition.txt")
+            self.assertEqual(len(bazgan_partition(g)), 2)
+        with self.subTest():
+            g = parse_graph("tests/valid_bazgan_partition_2.txt")
+            self.assertEqual(len(bazgan_partition(g)), 2)
+        with self.subTest():
+            g = parse_graph("tests/valid_bazgan_partition_4.txt")
+            self.assertEqual(len(bazgan_partition(g)), 2)
+
+            
 def main():
     unittest.main()
 
