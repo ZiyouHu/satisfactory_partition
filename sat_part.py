@@ -1,13 +1,15 @@
+"""
+Module containing functions to determine the satisfactory partition of a graph.
+Assumes all the graphs are simple, unweighted, and undirected.
+"""
 from typing import List
 import networkx as nx
 from networkx import Graph
 import sys
-import matplotlib as plt
-from matplotlib import figure
+import matplotlib.pyplot as plt
 from networkx import MultiGraph
 
-# Assume all the graphs are simple, unweighted, and undirected.
-# PATH refers to the path of the file. It does not mean path in graph theory.
+# Filepaths to utility graphs
 K4_PATH = "utils/K4.txt"
 K33_PATH = "utils/K3,3.txt"
 K5_PATH = "utils/K5.txt"
@@ -25,14 +27,18 @@ def get_disconnected_sets(g: Graph) -> List[set] | None:
 
 def is_non_star_tree(g: Graph) -> int:
     """
-    Returns True if the graph is a non-star tree. 
+    Evaluates whether if the graph is a non-star tree. 
+    Return values: 
+    0 -- The graph is not a tree
+    1 -- The graph is a star
+    2 -- The graph is a non-star tree
     """
     if not nx.is_tree(g):
         return 0 # Not a tree
     # Check if tree is star
     num_nodes = g.number_of_nodes() - 1
     for n in g.nodes:
-        if len(g.neighbors(n)) == num_nodes:
+        if len(list(g.neighbors(n))) == num_nodes:
             return 1 # a tree but a star
     return 2
 
@@ -56,7 +62,6 @@ def cycle_larger_4(g: Graph) -> list | None:
         return [simple_cycles[0][:2], simple_cycles[0][2:] ]
     return None
 
-# The functions below are all for "special" cases
 def has_max_degree_4(g: Graph) -> bool:
     """
     Return whether the maximum degree in the graph is no more than 4.
@@ -124,30 +129,23 @@ def is_potential_disjoint(g: Graph) -> bool:
     2 vertex disjoint cycles. 
     Assumes the given graph contains one existing cycle. 
     """
-    print("Original graph:")
-    print_graph(g)
     cycles = nx.cycle_basis(g)
     if len(cycles) == 0:
         return False
     cycle = cycles[0]
-    # Exclude cycle nodes but retain original degree of node (eg via attribute)
-    # No need to track degree because we filter them out in candidates 
     # Find candidate nodes (nodes not in cycle of degree 1 or 2)
     candidates = [n for n in g.nodes() if n not in cycle and g.degree[n] < 3]
     multigraph = nx.MultiGraph(g)
     multigraph.remove_nodes_from(cycle)
-    print_graph(multigraph)
     # Iterate through possible edges
     for u in candidates:
         for v in candidates:
             if u == v or g.has_edge(u, v):
-                break
+                continue
             # Try adding one edge and check if it adds a new cycle.
             multigraph.add_edge(u, v)
             new_cycles = list(nx.simple_cycles(multigraph))
             if len(new_cycles) > 0:
-                print("New cycle created after adding one edge")
-                print_graph(multigraph)
                 return True
              # Try adding additional disjoint edge and check for cycle again  
             else:
@@ -155,22 +153,22 @@ def is_potential_disjoint(g: Graph) -> bool:
                    multigraph.add_edge(edge[0], edge[1])
                    new_cycles = list(nx.simple_cycles(multigraph))
                    if len(new_cycles) > 0:
-                       print("New cycle created after adding two edges")
-                       print_graph(multigraph)
                        return True
                    multigraph.remove_edge(edge[0], edge[1])
             multigraph.remove_edge(u,v)
     return False
 
-
-def disjoint_edges(g: MultiGraph, nodes: List, u: int, v: int) -> List:
+def disjoint_edges(g: MultiGraph, candidates: List, u: int, v: int) -> List:
     """
     Given list of nodes in a graph and an edge u, v, locate all possible new
     edges which can be created from nodes which are disjoint to u, v. 
     """
     result = []
-    nodes.remove(u)
-    nodes.remove(v)
+    nodes = list(candidates)
+    if u in nodes:
+        nodes.remove(u)
+    if v in nodes:
+        nodes.remove(v)
     for i in nodes:
         for j in nodes:
             if i == j or g.has_edge(i, j):
@@ -211,17 +209,15 @@ def parse_graph(input_file_name) -> Graph:
         G.add_edge(int(edge[0]), int(edge[1]))
     return G
 
-
 def visualize_graph(G: Graph) -> None:
     """
     Draws display of graph.
     """
-    plt.pyplotfigure(1)
+    plt.figure(1)
     nx.draw_networkx(G,
                     pos=nx.spring_layout(G, iterations=1000),
                     arrows=False, with_labels=True)
     plt.show()
-
 
 def main(input_file_name):
     """
@@ -229,9 +225,9 @@ def main(input_file_name):
     """
     # Initalize given graph from text file   
     g = parse_graph(input_file_name)
-    # TODO debug
+    
+    # TODO
     # visualize_graph(g) 
-    # TODO delete test statement below
     is_potential_disjoint(g)
 
     # Check if the graph is disconnected.
@@ -277,7 +273,6 @@ def main(input_file_name):
         if g.number_of_nodes > 10:
             algorithm_1(g)
         else:
-            # TODO: we need to implement the is_potential_disjoint function.
             if is_potential_disjoint(g):
                 print("The graph has a satisfactory partition.")
             else:
@@ -306,17 +301,5 @@ def main(input_file_name):
                 print("No satisfactory partition exists.")
             return
 
-
-# TODO delete
-def print_graph(G):
-    """
-    Utility function which prints number of nodes and edges. 
-    """
-    print(f"Graph with {G.number_of_nodes()} nodes: ")
-    for e in G.edges():
-        print(e)
-
 if __name__ == "__main__":
-    # TODO Check about visualize_graph
-    # main(sys.argv[1])
-    main("tests/valid_is_potential_disjoint_2.txt")
+    main(sys.argv[1])
