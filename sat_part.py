@@ -2,7 +2,7 @@
 Module containing functions to determine the satisfactory partition of a graph.
 Assumes all the graphs are simple, unweighted, and undirected.
 """
-from typing import List
+from typing import List, Tuple
 import networkx as nx
 from networkx import Graph
 import sys
@@ -14,7 +14,7 @@ K4_PATH = "utils/K4.txt"
 K33_PATH = "utils/K3,3.txt"
 K5_PATH = "utils/K5.txt"
 
-def get_disconnected_sets(g: Graph) -> List[set] | None:
+def get_disconnected_sets(g: Graph) -> List | None:
     """
     If disconnected, return the disconnected sets.
     If connected, return None.
@@ -42,7 +42,7 @@ def is_non_star_tree(g: Graph) -> int:
             return 1 # a tree but a star
     return 2
 
-def cycle_larger_4(g: Graph) -> list | None:
+def cycle_larger_4(g: Graph) -> List | None:
     """
     If the graph is a cycle larger than 4, return a partition pair.
     Arbitrarily, the partition pair created will consist of two nodes in one 
@@ -59,7 +59,7 @@ def cycle_larger_4(g: Graph) -> list | None:
         return None
     # Create partition
     if sorted(simple_cycles[0]) == sorted(list(g.nodes())):
-        return [simple_cycles[0][:2], simple_cycles[0][2:] ]
+        return [simple_cycles[0][:2], simple_cycles[0][2:]]
     return None
 
 def has_max_degree_4(g: Graph) -> bool:
@@ -110,24 +110,26 @@ def has_min_degree_3(g):
             return False
     return True
 
-def has_2_disjoint_cyc(g):
+def has_2_disjoint_cyc(g) -> List | None:
     """
-    Return whether the graph has 2 disjoint cycles.
+    Evaluates whether the graph has 2 disjoint cycles. Retuns the partition created 
+    from disjoint cycles. Returns None if the graph does not have two disjoint cycles.
     """
     cycles = [set(c) for c in nx.simple_cycles(g)]
     for i in cycles:
         for j in cycles:
             if i.isdisjoint(j):
-                return True
-    return False
+                V1 = list(set(g.nodes()) ^ j)
+                V2 = list(j)
+                return (V1, V2)
+    return None
 
-# Verbatim from the paper: need to adapt
-def is_potential_disjoint(g: Graph) -> bool:
+def disjoint_cyc_partition(g: Graph) -> List | None:
     """
     Evaluate a graph and return whether there exist no more than 2 disjoint edges that can be 
     inserted between vertices of degrees 1 or 2 such that the resulting multigraph contains 
-    2 vertex disjoint cycles. 
-    Assumes the given graph contains one existing cycle. 
+    2 vertex disjoint cycles. Partitions graph based on potential cycles created.
+    Returns None if no partition can be made.
     """
     cycles = nx.cycle_basis(g)
     if len(cycles) == 0:
@@ -146,17 +148,21 @@ def is_potential_disjoint(g: Graph) -> bool:
             multigraph.add_edge(u, v)
             new_cycles = list(nx.simple_cycles(multigraph))
             if len(new_cycles) > 0:
-                return True
+                V1 = new_cycles[0]
+                V2 = list(set(g.nodes()) ^ set(V1))
+                return (V1, V2)
              # Try adding additional disjoint edge and check for cycle again  
             else:
                for edge in disjoint_edges(g, candidates, u, v):
                    multigraph.add_edge(edge[0], edge[1])
                    new_cycles = list(nx.simple_cycles(multigraph))
                    if len(new_cycles) > 0:
-                       return True
+                       V1 = new_cycles[0]
+                       V2 = list(set(g.nodes()) ^ set(V1))
+                       return (V1, V2)
                    multigraph.remove_edge(edge[0], edge[1])
             multigraph.remove_edge(u,v)
-    return False
+    return None
 
 def disjoint_edges(g: MultiGraph, candidates: List, u: int, v: int) -> List:
     """
@@ -176,7 +182,7 @@ def disjoint_edges(g: MultiGraph, candidates: List, u: int, v: int) -> List:
             result.append((i, j))
     return result
 
-def bazgan_partition(G):
+def bazgan_partition(G) -> Tuple | None:
     """
     Satisfactory partition for 3 and 4-regular graphs, |V| > 10. 
     """
@@ -185,13 +191,13 @@ def bazgan_partition(G):
         print('No satisfactory partition found.')
         return None
     d = G.degree(0) # The degree of every vertex
-    v1 = cycles[0]
-    not_v1 = v1 ^ G.nodes
+    V1 = cycles[0]
+    not_v1 = V1 ^ G.nodes
     for n in not_v1:
-        if len(set(G.neighbors(n)) & set(v1)) >= d-1:
-            v1.append(n)
-    v2 = list(v1 ^ G.nodes)
-    return (v1, v2)
+        if len(set(G.neighbors(n)) & set(V1)) >= d-1:
+            V1.append(n)
+    V2 = list(V1 ^ G.nodes)
+    return (V1, V2)
 
 
 def parse_graph(input_file_name) -> Graph:
@@ -229,7 +235,7 @@ def main(input_file_name):
     
     # TODO
     # visualize_graph(g) 
-    is_potential_disjoint(g)
+
     # Empty graph
     if g.number_of_nodes() == 0:
         print("Graph is empty. No partition exists.")
@@ -251,10 +257,10 @@ def main(input_file_name):
         if is_non_star_tree == 1:
             print("The graph is a star. No satisfactory partition exists.")
             return
-        # Need to output the actual paritition
+        # TODO Need to output the actual paritition
         leaf = 0
         for n in g.nodes:
-            if len(g.neighbors(n)) == 1:
+            if len(list(g.neighbors(n))) == 1:
                 leaf = n
         parent = g.neighbors(n)[0]
         v1 = g.neighbors(n)
@@ -269,42 +275,29 @@ def main(input_file_name):
         s_p = cycle_larger_4(g)
         print(f"The graph is a cycle with length larger than 4. A satisfactory partition for the graph is {s_p}.")
     
-    if not has_max_degree_4(g):
-        print("Because there are nodes with degree larger than 4, the problem is NP hard.")
-        return
-    
-    # Implement the page on the second page
+     # Bazgan partition (3 and 4 regular graphs, |V| > 10)
     if is_valid_3_regular(g) or is_valid_4_regular(g):
         if g.number_of_nodes() > 10:
-            bazgan_partition(g)
-        else:
-            if is_potential_disjoint(g):
-                print("The graph has a satisfactory partition.")
-            else:
-                print("No satisfactory partition exists")
+            s_p = bazgan_partition(g)
+            print(f"The graph fits the criterion for the Bazgan partition. A satisfactory partition for the graph is {s_p}.")
             return
-    else:
-        print("The graph is not 3 or 4-regular, or is K4, K3,3, or K5. No satisfactory paritition exists.")
+
+    # Partition via finding existing disjoint cycles, or adding edges and finding disjoint cycles
+    if has_max_degree_4(g):
+        s_p = has_2_disjoint_cyc(g)
+        if s_p:
+            print(f"The graph has two disjoint cycles. A satisfactory partition for the graph is {s_p}")
+            return
+        if not s_p:
+            if has_min_degree_3(g):
+                print("Graph has degrees 3-4 and contains no disjoint cycles. No satisfactory partition exists") 
+                return
+        s_p = disjoint_cyc_partition(g)
+        if s_p:
+            print(f"The graph has 2 disjoint cycles after adding 1-2 potential edges. A satisfactory partition for the graph is {s_p}")
+        else:
+            print(f"The graph does not contain 2 disjoint cycles after adding 1-2 potential edges. No satisfactory partition exists.")
         return
-    
-    # We need to check whether there are at least 11 vertices in g or not.
-    if len(g.nodes) > 10:
-        s_p = bazgan_partition(g)
-        print(f"The graph fits the criterion for algorithm1. A satisfactory partition for the graph is {s_p}.")
-        return s_p
-    
-    # The graph is not a 3 or 4 regular graph.
-    if has_min_degree_3(g):
-        if has_2_disjoint_cyc(g):
-            print("The graph has a satisfactory partition.")
-            return    
-        else:
-            print("The graph has min degree 3 but does not have 2 vertex disjoint cycles.")
-            if is_potential_disjoint(g):
-                print("The graph has a satisfactory partition.")
-            else:
-                print("No satisfactory partition exists.")
-            return
 
 if __name__ == "__main__":
     main(sys.argv[1])

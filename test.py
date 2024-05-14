@@ -81,21 +81,21 @@ class SatPartTest(unittest.TestCase):
     def test_is_potential_disjoint(self):
         with self.subTest():
             g = parse_graph("tests/K4.txt")
-            self.assertEqual(is_potential_disjoint(g), False)
+            self.assertEqual(disjoint_cyc_partition(g), None)
         with self.subTest():
             g = parse_graph("tests/valid_is_potential_disjoint.txt")
-            self.assertEqual(is_potential_disjoint(g), True)
+            self.assertEqual(len(disjoint_cyc_partition(g)), 2)
         with self.subTest():
             g = parse_graph("tests/valid_is_potential_disjoint_2.txt")
-            self.assertEqual(is_potential_disjoint(g), True)
+            self.assertEqual(len(disjoint_cyc_partition(g)), 2)
     
-    def test_has_2_discjoint_cyc(self):
+    def test_has_2_disjoint_cyc(self):
         with self.subTest():
             g = parse_graph("tests/linked_triangles.txt")
-            self.assertEqual(has_2_disjoint_cyc(g), True)
+            self.assertEqual(len(has_2_disjoint_cyc(g)), 2)
         with self.subTest():
             g = parse_graph("tests/cycle_size_5.txt")
-            self.assertEqual(has_2_disjoint_cyc(g), False)
+            self.assertEqual(has_2_disjoint_cyc(g), None)
         
     def test_bazgan_partition(self):
         with self.subTest():
