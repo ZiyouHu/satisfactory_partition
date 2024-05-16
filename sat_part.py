@@ -49,15 +49,16 @@ def tree_partition(g: Graph) -> list:
     for n in g.nodes:
         if len(list(g.neighbors(n))) == 1:
             leaf = n
+            break
     parent = list(g.neighbors(n))[0]
+    print(parent)
     v1 = []
     for node in list(g.neighbors(parent)):
-        if len(list(g.neighbors(n))) == 1:
+        if len(list(g.neighbors(node))) == 1:
             v1.append(node)
     v1.append(parent)
     v2 = set(g.nodes) ^ set(v1)
     s_p = [v1, list(v2)] 
-    print(f"The graph is a tree (and not a star). A satisfactory partition for the graph is: {s_p}.")
     return s_p
 
 def cycle_larger_4(g: Graph) -> List | None:
