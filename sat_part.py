@@ -34,13 +34,31 @@ def is_non_star_tree(g: Graph) -> int:
     2 -- The graph is a non-star tree
     """
     if not nx.is_tree(g):
-        return 0 # Not a tree
-    # Check if tree is star
+        return 0
     num_nodes = g.number_of_nodes() - 1
     for n in g.nodes:
         if len(list(g.neighbors(n))) == num_nodes:
-            return 1 # a tree but a star
+            return 1
     return 2
+
+def tree_partition(g: Graph) -> list:
+    """
+    Finds a satisfactory partition for a non-star tree.
+    """
+    leaf = 0
+    for n in g.nodes:
+        if len(list(g.neighbors(n))) == 1:
+            leaf = n
+    parent = list(g.neighbors(n))[0]
+    v1 = []
+    for node in list(g.neighbors(parent)):
+        if len(list(g.neighbors(n))) == 1:
+            v1.append(node)
+    v1.append(parent)
+    v2 = set(g.nodes) ^ set(v1)
+    s_p = [v1, list(v2)] 
+    print(f"The graph is a tree (and not a star). A satisfactory partition for the graph is: {s_p}.")
+    return s_p
 
 def cycle_larger_4(g: Graph) -> List | None:
     """
@@ -233,9 +251,6 @@ def main(input_file_name):
     # Initalize given graph from text file   
     g = parse_graph(input_file_name)
     
-    # TODO
-    # visualize_graph(g) 
-
     # Empty graph
     if g.number_of_nodes() == 0:
         print("Graph is empty. No partition exists.")
@@ -254,20 +269,10 @@ def main(input_file_name):
         return
 
     if is_non_star_tree(g):
-        if is_non_star_tree == 1:
+        if is_non_star_tree(g) == 1:
             print("The graph is a star. No satisfactory partition exists.")
             return
-        # TODO Need to output the actual paritition
-        leaf = 0
-        for n in g.nodes:
-            if len(list(g.neighbors(n))) == 1:
-                leaf = n
-        parent = g.neighbors(n)[0]
-        v1 = g.neighbors(n)
-        v1.append(parent)
-        v2 = g.nodes ^ v1
-        s_p = [v1, v2] 
-        s_p = is_non_star_tree(g)
+        s_p = tree_partition(g)
         print(f"The graph is a tree (and not a star). A satisfactory partition for the graph is: {s_p}.")
         return s_p
     
