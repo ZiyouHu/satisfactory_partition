@@ -1,12 +1,11 @@
 """
-Module containing functions to determine the satisfactory partition of a graph.
+Program which determines the satisfactory partition of a graph.
 Assumes all the graphs are simple, unweighted, and undirected.
 """
 from typing import List, Tuple
 import networkx as nx
 from networkx import Graph
 import sys
-import matplotlib.pyplot as plt
 from networkx import MultiGraph
 
 # Filepaths to utility graphs
@@ -131,7 +130,7 @@ def has_min_degree_3(g):
 
 def has_2_disjoint_cyc(g) -> List | None:
     """
-    Evaluates whether the graph has 2 disjoint cycles. Retuns the partition created 
+    Evaluates whether the graph has 2 disjoint cycles. Returns the partition created 
     from disjoint cycles. Returns None if the graph does not have two disjoint cycles.
     """
     cycles = [set(c) for c in nx.simple_cycles(g)]
@@ -234,16 +233,6 @@ def parse_graph(input_file_name) -> Graph:
         edge = line.split()
         G.add_edge(int(edge[0]), int(edge[1]))
     return G
-
-def visualize_graph(G: Graph) -> None:
-    """
-    Draws display of graph.
-    """
-    plt.figure(1)
-    nx.draw_networkx(G,
-                    pos=nx.spring_layout(G, iterations=1000),
-                    arrows=False, with_labels=True)
-    plt.show()
 
 def main(input_file_name):
     """

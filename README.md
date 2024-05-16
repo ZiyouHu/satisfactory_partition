@@ -12,7 +12,6 @@ This project implements `sat_part`, a python program which solves the satisfacto
 ## Requirements
 - python3
 - networkx
-- matplotlib
   
 ## To Use
 `sat_part` accepts the filepath of a text file representing a graph. The text file should list the total number of nodes in the graph as the first line, followed by each edge. Nodes should be numbered starting from 0. The program will evaluate the graph and output whether a satisfactory partition can be created and what nodes are included in the partition if it exists. 
