@@ -298,6 +298,8 @@ def main(input_file_name):
         else:
             print(f"The graph does not contain 2 disjoint cycles after adding 1-2 potential edges. No satisfactory partition exists.")
         return
+    
+    print("The problem is NP hard, or no satisfactory partition exists.")
 
 if __name__ == "__main__":
     main(sys.argv[1])
